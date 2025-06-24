@@ -1,0 +1,10 @@
+{
+  "app": {
+    "name": "dynamic-link(http_server)"
+  },
+
+  "http_server": {
+    "addr": ":8000",
+    "prefork": true
+  }
+}

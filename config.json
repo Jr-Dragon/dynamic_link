@@ -1,0 +1,17 @@
+{
+  "app": {
+    "logger": {
+      "pretty": true
+    }
+  },
+  "database": {
+    "redis": {
+      "addr": "redis:6379",
+      "read_timeout": "200ms",
+      "write_timeout": "200ms"
+    }
+  },
+  "otel": {
+    "tracer_endpoint": "jaeger:4317"
+  }
+}

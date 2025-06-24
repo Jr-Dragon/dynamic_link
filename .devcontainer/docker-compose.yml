@@ -1,0 +1,34 @@
+services:
+  dynamic_link:
+    image: mcr.microsoft.com/devcontainers/go:dev-1.24
+    volumes:
+      - ../:/dynamic_link:cached
+    networks: [ 'dynamic_link' ]
+    command: sleep infinity
+
+  redis:
+    image: ghcr.io/microsoft/garnet
+    restart: always
+    ports: [ "6379:6379" ]
+    networks: [ 'dynamic_link' ]
+
+#  otel-collector-contrib:
+#    image: otel/opentelemetry-collector-contrib
+#    ports:
+#      - "4317:4317" # gRPC
+#      - "4318:4318" # HTTP
+#      - "55679:55679" # ZPages
+#    networks: [ 'dynamic_link' ]
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    ports:
+      - "16686:16686"
+    networks: [ 'dynamic_link' ]
+
+networks:
+  dynamic_link:
+    driver: bridge
+
+volumes:
+  data:
