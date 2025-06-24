@@ -11,8 +11,10 @@ type ConfigAppLogger struct {
 }
 
 type ConfigApp struct {
-	Name   string          `mapstructure:"name"`
-	Logger ConfigAppLogger `mapstructure:"logger"`
+	Name           string          `mapstructure:"name"`
+	RedirectorHost string          `mapstructure:"redirector_host"`
+	Key            uint32          `mapstructure:"key"`
+	Logger         ConfigAppLogger `mapstructure:"logger"`
 }
 
 type ConfigHttpServer struct {

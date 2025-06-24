@@ -8,6 +8,8 @@ package main
 
 import (
 	"github.com/jr-dragon/dynamic_link/api/base/v1"
+	v1_2 "github.com/jr-dragon/dynamic_link/api/link/v1"
+	"github.com/jr-dragon/dynamic_link/internal/biz/link"
 	"github.com/jr-dragon/dynamic_link/internal/data"
 	"github.com/jr-dragon/dynamic_link/internal/server"
 )
@@ -20,7 +22,9 @@ func wireApp(cfg data.Config) (*App, func(), error) {
 		return nil, nil, err
 	}
 	route := v1.NewRoute(clients)
-	app := server.NewHTTPServer(cfg, route)
+	linkLink := link.NewLink(cfg, clients)
+	v1Route := v1_2.NewRoute(linkLink)
+	app := server.NewHTTPServer(cfg, route, v1Route)
 	mainApp := newApp(app)
 	return mainApp, func() {
 	}, nil

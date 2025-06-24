@@ -15,12 +15,12 @@ func NewRoute(c *data.Clients) *Route {
 	return &Route{c: c}
 }
 
-func (r *Route) RegisterHttpRoutes(app *fiber.App) {
+func (r *Route) RegisterHttpRoutes(app fiber.Router) {
 	app.Get("/", r.root)
 }
 
 func (r *Route) root(c *fiber.Ctx) error {
-	resp := response.New(r.c.RDB.Ping(c.Context()).Err())
+	resp := response.Err(r.c.RDB.Ping(c.Context()).Err())
 
 	c.Status(resp.Code)
 	return c.JSON(resp)

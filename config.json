@@ -1,5 +1,7 @@
 {
   "app": {
+    "key": 3988292384,
+    "redirector_host": "https://redirector.test",
     "logger": {
       "pretty": true
     }

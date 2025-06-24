@@ -1,6 +1,7 @@
 package server
 
 import (
+	linkv1 "github.com/jr-dragon/dynamic_link/api/link/v1"
 	"log/slog"
 	"os"
 
@@ -16,13 +17,14 @@ func NewHTTPServer(
 	cfg data.Config,
 
 	base *basev1.Route,
+	link *linkv1.Route,
 ) *fiber.App {
 	app := fiber.New(fiber.Config{Prefork: cfg.HttpServer.Prefork})
 
 	app.Use(slogfiber.New(logger(cfg)))
-	//app.Use(otelfiber.Middleware())
 
 	base.RegisterHttpRoutes(app)
+	link.RegisterHTTPRoutes(app)
 
 	return app
 }
