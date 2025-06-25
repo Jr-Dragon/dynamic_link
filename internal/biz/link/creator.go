@@ -16,17 +16,14 @@ type (
 	}
 )
 
-func (link *Link) Create(ctx context.Context, req CreateRequest) (resp CreateResponse, err error) {
+func (link *Link) CreateSimple(ctx context.Context, req CreateRequest) (resp CreateResponse, err error) {
 	if err = validator.New(validator.WithRequiredStructEnabled()).Struct(req); err != nil {
 		return
 	}
 
-	var p string
-	if p, err = internal.GenerateRandomString(6, link.cfg.App.Key); err != nil {
-		return
-	}
+	p := internal.GenerateRandomString(6, link.cfg.App.Key)
 
-	resp.URL = link.cfg.App.RedirectorHost + "/" + p
+	resp.URL = link.cfg.App.RedirectorHost + "/s/" + p
 	err = link.c.RDB.Set(ctx, p, req.URL, 0).Err()
 
 	return

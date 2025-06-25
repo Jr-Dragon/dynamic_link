@@ -17,10 +17,7 @@ func TestGenerateRandomString(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			gen, err := GenerateRandomString(tc.length, crc32.IEEE)
-			if err != nil {
-				t.Errorf("GenerateRandomString failed: %v", err)
-			}
+			gen := GenerateRandomString(tc.length, crc32.IEEE)
 
 			splitted := strings.Split(gen, "-")
 			if len(splitted) != 2 {
@@ -46,9 +43,6 @@ func TestGenerateRandomString(t *testing.T) {
 
 func BenchmarkGenerateRandomString(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := GenerateRandomString(6, crc32.IEEE)
-		if err != nil {
-			b.Errorf("GenerateRandomString failed: %v", err)
-		}
+		GenerateRandomString(6, crc32.IEEE)
 	}
 }

@@ -36,6 +36,9 @@ func Err(err error) *Response {
 	if e := new(validator.ValidationErrors); errors.As(err, e) {
 		return &Response{Code: http.StatusBadRequest, Message: e.Error()}
 	}
+	if errors.Is(err, ErrInvalidCode) {
+		return &Response{Code: http.StatusNotFound, Message: "not found"}
+	}
 
 	return &Response{Code: http.StatusInternalServerError, Message: "unexpected error"}
 }
