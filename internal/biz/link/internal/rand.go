@@ -15,6 +15,23 @@ const (
 	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
 )
 
+//go:generate moq -out mock_rand.go . RandGenerator
+type RandGenerator interface {
+	String(n int, k uint32) string
+}
+type Rand struct{}
+
+func (*Rand) String(n int, k uint32) string {
+	b := randomBytes(n)
+
+	var sb strings.Builder
+	sb.Write(b)
+	sb.WriteRune('-')
+	sb.WriteString(checksum(b, k))
+
+	return sb.String()
+}
+
 var src = rand.NewSource(time.Now().UnixNano())
 
 func randomBytes(n int) []byte {
@@ -38,15 +55,4 @@ func randomBytes(n int) []byte {
 func checksum(s []byte, k uint32) string {
 	tbl := crc32.MakeTable(k)
 	return strconv.FormatUint(uint64(crc32.Checksum(s, tbl)), 36)
-}
-
-func GenerateRandomString(n int, k uint32) string {
-	b := randomBytes(n)
-
-	var sb strings.Builder
-	sb.Write(b)
-	sb.WriteRune('-')
-	sb.WriteString(checksum(b, k))
-
-	return sb.String()
 }

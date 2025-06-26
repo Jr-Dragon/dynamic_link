@@ -17,7 +17,7 @@ func TestGenerateRandomString(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			gen := GenerateRandomString(tc.length, crc32.IEEE)
+			gen := (&Rand{}).String(tc.length, crc32.IEEE)
 
 			splitted := strings.Split(gen, "-")
 			if len(splitted) != 2 {
@@ -43,6 +43,6 @@ func TestGenerateRandomString(t *testing.T) {
 
 func BenchmarkGenerateRandomString(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		GenerateRandomString(6, crc32.IEEE)
+		(&Rand{}).String(6, crc32.IEEE)
 	}
 }

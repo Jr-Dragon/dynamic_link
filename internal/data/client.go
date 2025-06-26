@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/go-redis/redismock/v9"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel"
@@ -23,6 +24,9 @@ import (
 type Clients struct {
 	// RDB is the connection of Redis
 	RDB *redis.Client
+	// RDBMock is the mocker for RDB for testing
+	RDBMock redismock.ClientMock
+
 	// TracerProvider is the otel tracer provider
 	TracerProvider trace.TracerProvider
 }

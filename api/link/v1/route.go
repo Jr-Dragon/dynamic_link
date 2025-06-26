@@ -1,17 +1,21 @@
 package v1
 
 import (
+	"errors"
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/redis/go-redis/v9"
+
 	"github.com/jr-dragon/dynamic_link/api/internal/response"
 	"github.com/jr-dragon/dynamic_link/internal/biz/link"
-	"net/http"
 )
 
 type Route struct {
-	l *link.Link
+	l link.Contract
 }
 
-func NewRoute(l *link.Link) *Route {
+func NewRoute(l link.Contract) *Route {
 	return &Route{l: l}
 }
 
@@ -52,7 +56,12 @@ func (r *Route) validateSimple(c *fiber.Ctx) error {
 
 func (r *Route) redirectSimple(c *fiber.Ctx) error {
 	if url, err := r.l.RedirectSimple(c.Context(), c.Params("code")); err != nil {
-		resp := response.Err(err)
+		var resp *response.Response
+		if errors.Is(err, redis.Nil) {
+			resp = response.Err(response.ExpiredCode(err))
+		} else {
+			resp = response.Err(err)
+		}
 
 		c.Status(resp.Code)
 		return c.JSON(resp)

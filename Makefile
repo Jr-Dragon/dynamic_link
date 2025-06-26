@@ -2,6 +2,7 @@
 # init env
 init:
 	go install github.com/google/wire/cmd/wire@latest
+	go install github.com/matryer/moq@latest
 
 .PHONY: generate
 # go generate

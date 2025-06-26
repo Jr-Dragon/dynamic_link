@@ -2,8 +2,8 @@ package link
 
 import (
 	"context"
+
 	"github.com/go-playground/validator/v10"
-	"github.com/jr-dragon/dynamic_link/internal/biz/link/internal"
 )
 
 type (
@@ -21,7 +21,7 @@ func (link *Link) CreateSimple(ctx context.Context, req CreateRequest) (resp Cre
 		return
 	}
 
-	p := internal.GenerateRandomString(6, link.cfg.App.Key)
+	p := link.rand.String(6, link.cfg.App.Key)
 
 	resp.URL = link.cfg.App.RedirectorHost + "/s/" + p
 	err = link.c.RDB.Set(ctx, p, req.URL, 0).Err()

@@ -7,7 +7,12 @@ import (
 )
 
 func (link *Link) ValidateSimple(code []byte) error {
-	if len(code) > 20 || len(code) < 6 {
+	// The code is formatted in "`$key`-`$checksum`"
+	// - len(key): 6
+	// - minimum checksum: "0"
+	// - maximum checksum: "1z141z3" (4294967295)
+	// 8 <= len(code) <= 14
+	if len(code) > 14 || len(code) < 8 {
 		return errors.New("code length")
 	}
 

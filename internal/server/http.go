@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	linkv1 "github.com/jr-dragon/dynamic_link/api/link/v1"
 	"log/slog"
 	"os"
@@ -9,21 +10,23 @@ import (
 	"github.com/phsym/console-slog"
 	slogfiber "github.com/samber/slog-fiber"
 
-	basev1 "github.com/jr-dragon/dynamic_link/api/base/v1"
 	"github.com/jr-dragon/dynamic_link/internal/data"
 )
 
 func NewHTTPServer(
 	cfg data.Config,
 
-	base *basev1.Route,
+	c *data.Clients,
+
 	link *linkv1.Route,
 ) *fiber.App {
 	app := fiber.New(fiber.Config{Prefork: cfg.HttpServer.Prefork})
 
 	app.Use(slogfiber.New(logger(cfg)))
+	app.Use(healthcheck.New(healthcheck.Config{
+		LivenessProbe: livenessProbe(c),
+	}))
 
-	base.RegisterHttpRoutes(app)
 	link.RegisterHTTPRoutes(app)
 
 	return app
@@ -38,4 +41,10 @@ func logger(cfg data.Config) *slog.Logger {
 	}
 
 	return slog.New(h)
+}
+
+func livenessProbe(clients *data.Clients) func(c *fiber.Ctx) bool {
+	return func(c *fiber.Ctx) bool {
+		return clients.RDB.Ping(c.Context()).Err() == nil
+	}
 }
