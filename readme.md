@@ -1,5 +1,7 @@
 # Dynamic Link
 
+[![Go](https://github.com/Jr-Dragon/dynamic_link/actions/workflows/workflow.yml/badge.svg)](https://github.com/Jr-Dragon/dynamic_link/actions/workflows/workflow.yml)
+
 A simple URL shortener.
 
 ## Development
