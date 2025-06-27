@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
+	"log/slog"
+
 	"github.com/jr-dragon/dynamic_link/internal/data"
 	"github.com/jr-dragon/dynamic_link/internal/library/logs"
-	"log/slog"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
@@ -37,5 +38,7 @@ func main() {
 	}
 	defer cleanup()
 
-	err = app.Listen(cfg.HttpServer.Addr)
+	if err = app.Listen(cfg.HttpServer.Addr); err != nil {
+		slog.Error("failed to start http server", logs.Err(err))
+	}
 }

@@ -7,10 +7,9 @@ import (
 	"github.com/jr-dragon/dynamic_link/internal/data"
 )
 
-//go:generate moq -out mock_link.go . Contract
-
+//go:generate moq -rm -out mock_link.go . Contract
 type Contract interface {
-	CreateSimple(ctx context.Context, req CreateRequest) (resp CreateResponse, err error)
+	Create(ctx context.Context, req CreateRequest) (resp CreateResponse, err error)
 	ValidateSimple(code []byte) error
 	RedirectSimple(ctx context.Context, code string) (url string, err error)
 }

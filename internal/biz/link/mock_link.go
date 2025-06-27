@@ -18,8 +18,8 @@ var _ Contract = &ContractMock{}
 //
 //		// make and configure a mocked Contract
 //		mockedContract := &ContractMock{
-//			CreateSimpleFunc: func(ctx context.Context, req CreateRequest) (CreateResponse, error) {
-//				panic("mock out the CreateSimple method")
+//			CreateFunc: func(ctx context.Context, req CreateRequest) (CreateResponse, error) {
+//				panic("mock out the Create method")
 //			},
 //			RedirectSimpleFunc: func(ctx context.Context, code string) (string, error) {
 //				panic("mock out the RedirectSimple method")
@@ -34,8 +34,8 @@ var _ Contract = &ContractMock{}
 //
 //	}
 type ContractMock struct {
-	// CreateSimpleFunc mocks the CreateSimple method.
-	CreateSimpleFunc func(ctx context.Context, req CreateRequest) (CreateResponse, error)
+	// CreateFunc mocks the Create method.
+	CreateFunc func(ctx context.Context, req CreateRequest) (CreateResponse, error)
 
 	// RedirectSimpleFunc mocks the RedirectSimple method.
 	RedirectSimpleFunc func(ctx context.Context, code string) (string, error)
@@ -45,8 +45,8 @@ type ContractMock struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
-		// CreateSimple holds details about calls to the CreateSimple method.
-		CreateSimple []struct {
+		// Create holds details about calls to the Create method.
+		Create []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Req is the req argument value.
@@ -65,15 +65,15 @@ type ContractMock struct {
 			Code []byte
 		}
 	}
-	lockCreateSimple   sync.RWMutex
+	lockCreate         sync.RWMutex
 	lockRedirectSimple sync.RWMutex
 	lockValidateSimple sync.RWMutex
 }
 
-// CreateSimple calls CreateSimpleFunc.
-func (mock *ContractMock) CreateSimple(ctx context.Context, req CreateRequest) (CreateResponse, error) {
-	if mock.CreateSimpleFunc == nil {
-		panic("ContractMock.CreateSimpleFunc: method is nil but Contract.CreateSimple was just called")
+// Create calls CreateFunc.
+func (mock *ContractMock) Create(ctx context.Context, req CreateRequest) (CreateResponse, error) {
+	if mock.CreateFunc == nil {
+		panic("ContractMock.CreateFunc: method is nil but Contract.Create was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
@@ -82,17 +82,17 @@ func (mock *ContractMock) CreateSimple(ctx context.Context, req CreateRequest) (
 		Ctx: ctx,
 		Req: req,
 	}
-	mock.lockCreateSimple.Lock()
-	mock.calls.CreateSimple = append(mock.calls.CreateSimple, callInfo)
-	mock.lockCreateSimple.Unlock()
-	return mock.CreateSimpleFunc(ctx, req)
+	mock.lockCreate.Lock()
+	mock.calls.Create = append(mock.calls.Create, callInfo)
+	mock.lockCreate.Unlock()
+	return mock.CreateFunc(ctx, req)
 }
 
-// CreateSimpleCalls gets all the calls that were made to CreateSimple.
+// CreateCalls gets all the calls that were made to Create.
 // Check the length with:
 //
-//	len(mockedContract.CreateSimpleCalls())
-func (mock *ContractMock) CreateSimpleCalls() []struct {
+//	len(mockedContract.CreateCalls())
+func (mock *ContractMock) CreateCalls() []struct {
 	Ctx context.Context
 	Req CreateRequest
 } {
@@ -100,9 +100,9 @@ func (mock *ContractMock) CreateSimpleCalls() []struct {
 		Ctx context.Context
 		Req CreateRequest
 	}
-	mock.lockCreateSimple.RLock()
-	calls = mock.calls.CreateSimple
-	mock.lockCreateSimple.RUnlock()
+	mock.lockCreate.RLock()
+	calls = mock.calls.Create
+	mock.lockCreate.RUnlock()
 	return calls
 }
 

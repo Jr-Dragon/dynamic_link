@@ -33,7 +33,7 @@ func (r *Route) create(c *fiber.Ctx) error {
 		resp = response.Err(err)
 	}
 
-	if d, err := r.l.CreateSimple(c.Context(), req); err != nil {
+	if d, err := r.l.Create(c.Context(), req); err != nil {
 		resp = response.Err(err)
 	} else {
 		resp = response.Data(d)
