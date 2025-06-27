@@ -12,6 +12,7 @@ type Contract interface {
 	Create(ctx context.Context, req CreateRequest) (resp CreateResponse, err error)
 	ValidateSimple(code []byte) error
 	RedirectSimple(ctx context.Context, code string) (url string, err error)
+	RedirectApplink(ctx context.Context, uas, code string) (url string, err error)
 }
 
 var _ Contract = &Link{}

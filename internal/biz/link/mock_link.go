@@ -21,6 +21,9 @@ var _ Contract = &ContractMock{}
 //			CreateFunc: func(ctx context.Context, req CreateRequest) (CreateResponse, error) {
 //				panic("mock out the Create method")
 //			},
+//			RedirectApplinkFunc: func(ctx context.Context, uas string, code string) (string, error) {
+//				panic("mock out the RedirectApplink method")
+//			},
 //			RedirectSimpleFunc: func(ctx context.Context, code string) (string, error) {
 //				panic("mock out the RedirectSimple method")
 //			},
@@ -37,6 +40,9 @@ type ContractMock struct {
 	// CreateFunc mocks the Create method.
 	CreateFunc func(ctx context.Context, req CreateRequest) (CreateResponse, error)
 
+	// RedirectApplinkFunc mocks the RedirectApplink method.
+	RedirectApplinkFunc func(ctx context.Context, uas string, code string) (string, error)
+
 	// RedirectSimpleFunc mocks the RedirectSimple method.
 	RedirectSimpleFunc func(ctx context.Context, code string) (string, error)
 
@@ -52,6 +58,15 @@ type ContractMock struct {
 			// Req is the req argument value.
 			Req CreateRequest
 		}
+		// RedirectApplink holds details about calls to the RedirectApplink method.
+		RedirectApplink []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Uas is the uas argument value.
+			Uas string
+			// Code is the code argument value.
+			Code string
+		}
 		// RedirectSimple holds details about calls to the RedirectSimple method.
 		RedirectSimple []struct {
 			// Ctx is the ctx argument value.
@@ -65,9 +80,10 @@ type ContractMock struct {
 			Code []byte
 		}
 	}
-	lockCreate         sync.RWMutex
-	lockRedirectSimple sync.RWMutex
-	lockValidateSimple sync.RWMutex
+	lockCreate          sync.RWMutex
+	lockRedirectApplink sync.RWMutex
+	lockRedirectSimple  sync.RWMutex
+	lockValidateSimple  sync.RWMutex
 }
 
 // Create calls CreateFunc.
@@ -103,6 +119,46 @@ func (mock *ContractMock) CreateCalls() []struct {
 	mock.lockCreate.RLock()
 	calls = mock.calls.Create
 	mock.lockCreate.RUnlock()
+	return calls
+}
+
+// RedirectApplink calls RedirectApplinkFunc.
+func (mock *ContractMock) RedirectApplink(ctx context.Context, uas string, code string) (string, error) {
+	if mock.RedirectApplinkFunc == nil {
+		panic("ContractMock.RedirectApplinkFunc: method is nil but Contract.RedirectApplink was just called")
+	}
+	callInfo := struct {
+		Ctx  context.Context
+		Uas  string
+		Code string
+	}{
+		Ctx:  ctx,
+		Uas:  uas,
+		Code: code,
+	}
+	mock.lockRedirectApplink.Lock()
+	mock.calls.RedirectApplink = append(mock.calls.RedirectApplink, callInfo)
+	mock.lockRedirectApplink.Unlock()
+	return mock.RedirectApplinkFunc(ctx, uas, code)
+}
+
+// RedirectApplinkCalls gets all the calls that were made to RedirectApplink.
+// Check the length with:
+//
+//	len(mockedContract.RedirectApplinkCalls())
+func (mock *ContractMock) RedirectApplinkCalls() []struct {
+	Ctx  context.Context
+	Uas  string
+	Code string
+} {
+	var calls []struct {
+		Ctx  context.Context
+		Uas  string
+		Code string
+	}
+	mock.lockRedirectApplink.RLock()
+	calls = mock.calls.RedirectApplink
+	mock.lockRedirectApplink.RUnlock()
 	return calls
 }
 

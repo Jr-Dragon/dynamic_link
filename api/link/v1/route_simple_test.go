@@ -28,7 +28,7 @@ func TestRoute_createSimple(t *testing.T) {
 	}{
 		{
 			name: "success",
-			link: &link.ContractMock{CreateSimpleFunc: func(ctx context.Context, req link.CreateRequest) (link.CreateResponse, error) {
+			link: &link.ContractMock{CreateFunc: func(ctx context.Context, req link.CreateRequest) (link.CreateResponse, error) {
 				return link.CreateResponse{URL: "https://dynamic-link.test/s/hSxIIn-v999y8"}, nil
 			}},
 			req:        link.CreateRequest{URL: "https://original.dynamic-link.test/"},
@@ -37,7 +37,7 @@ func TestRoute_createSimple(t *testing.T) {
 		},
 		{
 			name: "validate failed",
-			link: &link.ContractMock{CreateSimpleFunc: func(ctx context.Context, req link.CreateRequest) (link.CreateResponse, error) {
+			link: &link.ContractMock{CreateFunc: func(ctx context.Context, req link.CreateRequest) (link.CreateResponse, error) {
 				return link.CreateResponse{URL: ""}, validator.ValidationErrors{}
 			}},
 			req:        link.CreateRequest{URL: "invalid_url_string"},
@@ -46,7 +46,7 @@ func TestRoute_createSimple(t *testing.T) {
 		},
 		{
 			name: "database error",
-			link: &link.ContractMock{CreateSimpleFunc: func(ctx context.Context, req link.CreateRequest) (link.CreateResponse, error) {
+			link: &link.ContractMock{CreateFunc: func(ctx context.Context, req link.CreateRequest) (link.CreateResponse, error) {
 				return link.CreateResponse{URL: ""}, redis.ErrClosed
 			}},
 			req:        link.CreateRequest{URL: "https://original.dynamic-link.test/"},
@@ -104,6 +104,50 @@ func TestRoute_redirectSimple(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			app := setup(tc.link)
 			req, _ := http.NewRequest("GET", "/s/"+tc.code, bytes.NewReader(serialize(tc.code)))
+
+			resp, err := app.Test(req, -1)
+			if err != nil {
+				t.Errorf("TestRoute_redirect() error = %v", err)
+			}
+
+			assert.Equal(t, tc.wantStatus, resp.StatusCode)
+		})
+	}
+}
+
+func TestRoute_redirectApplink(t *testing.T) {
+	testcases := []struct {
+		name       string
+		link       *link.ContractMock
+		code       string
+		wantResp   *response.Response
+		wantStatus int
+	}{
+		{
+			name: "success",
+			link: &link.ContractMock{
+				ValidateSimpleFunc: func(code []byte) error { return nil },
+				RedirectApplinkFunc: func(ctx context.Context, uas, code string) (string, error) {
+					return "https://original.dynamic-link.test", nil
+				},
+			},
+			code:       "hSxIIn-v999y8",
+			wantStatus: http.StatusFound,
+		},
+		{
+			name: "validate failed",
+			link: &link.ContractMock{
+				ValidateSimpleFunc: func(code []byte) error { return errors.New("") },
+			},
+			code:       "invalid_url_string",
+			wantStatus: http.StatusNotFound,
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			app := setup(tc.link)
+			req, _ := http.NewRequest("GET", "/a/"+tc.code, bytes.NewReader(serialize(tc.code)))
 
 			resp, err := app.Test(req, -1)
 			if err != nil {

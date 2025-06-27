@@ -23,6 +23,7 @@ func (r *Route) RegisterHTTPRoutes(app fiber.Router) {
 	app.Post("link", r.create)
 
 	app.Get("s/:code", r.validateSimple, r.redirectSimple)
+	app.Get("a/:code", r.validateSimple, r.redirectApplink)
 }
 
 func (r *Route) create(c *fiber.Ctx) error {
@@ -56,6 +57,22 @@ func (r *Route) validateSimple(c *fiber.Ctx) error {
 
 func (r *Route) redirectSimple(c *fiber.Ctx) error {
 	if url, err := r.l.RedirectSimple(c.Context(), c.Params("code")); err != nil {
+		var resp *response.Response
+		if errors.Is(err, redis.Nil) {
+			resp = response.Err(response.ExpiredCode(err))
+		} else {
+			resp = response.Err(err)
+		}
+
+		c.Status(resp.Code)
+		return c.JSON(resp)
+	} else {
+		return c.Redirect(url, http.StatusFound)
+	}
+}
+
+func (r *Route) redirectApplink(c *fiber.Ctx) error {
+	if url, err := r.l.RedirectApplink(c.Context(), string(c.Request().Header.UserAgent()), c.Params("code")); err != nil {
 		var resp *response.Response
 		if errors.Is(err, redis.Nil) {
 			resp = response.Err(response.ExpiredCode(err))
